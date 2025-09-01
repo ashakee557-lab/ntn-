@@ -77,8 +77,8 @@ export class AIService {
         body: JSON.stringify({
           model: selectedModel,
           messages: formattedMessages,
-          temperature: isImage ? 0.7 : 0.1,
-          max_tokens: 800,
+          temperature: isImage ? 0.7 : 0.3,
+          max_tokens: 1200,
           stream: false
         })
       });

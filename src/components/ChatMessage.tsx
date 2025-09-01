@@ -27,13 +27,13 @@ const ChatMessage = ({ message, isTyping = false }: ChatMessageProps) => {
         if (index < text.length) {
           setDisplayedContent(text.slice(0, index + 1));
           index++;
-          setTimeout(typeWriter, 30);
+          setTimeout(typeWriter, 15); // Faster typing speed
         } else {
           setShowCursor(false);
         }
       };
       
-      setTimeout(typeWriter, 300);
+      setTimeout(typeWriter, 100); // Faster start
     } else {
       setDisplayedContent(message.content);
       setShowCursor(false);

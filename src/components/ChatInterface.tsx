@@ -2,14 +2,19 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import ChatMessage from "./ChatMessage";
 import TypingIndicator from "./TypingIndicator";
 import SpellChecker from "./SpellChecker";
 import ServiceSelector from "./ServiceSelector";
+import ContactDialog from "./ContactDialog";
+import CodeInterface from "./CodeInterface";
+import VercelDeploy from "./VercelDeploy";
 import { aiService } from "@/services/aiService";
-import { Send, Plus, Copy } from "lucide-react";
+import { Send, Plus, Copy, Code, MessageCircle, Phone, Mail, Rocket } from "lucide-react";
 import PandaLogo from "./PandaLogo";
 import { useTheme } from "./ThemeProvider";
+import { toast } from "@/components/ui/sonner";
 
 interface Message {
   id: string;
@@ -33,6 +38,7 @@ const ChatInterface = () => {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedService, setSelectedService] = useState<ServiceType>('auto');
+  const [showCodeInterface, setShowCodeInterface] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,6 +48,11 @@ const ChatInterface = () => {
   };
 
   useEffect(scrollToBottom, [messages]);
+
+  // Show code interface
+  if (showCodeInterface) {
+    return <CodeInterface onBack={() => setShowCodeInterface(false)} />;
+  }
 
   // Upload File
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,6 +125,22 @@ const ChatInterface = () => {
     }
   };
 
+  const copyMessage = async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      toast("Message copied!", {
+        description: "Content copied to clipboard",
+        duration: 2000,
+      });
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      toast("Copy failed", {
+        description: "Please try again",
+        duration: 2000,
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
@@ -129,7 +156,42 @@ const ChatInterface = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
+            {/* Code Interface Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCodeInterface(true)}
+              className="h-8 px-2 md:px-3 bg-gradient-glass border-glass-border hover:shadow-glow transition-all duration-300"
+            >
+              <Code className="w-4 h-4 mr-1" />
+              <span className="hidden md:inline">Code</span>
+            </Button>
+            
+            {/* Deploy Button */}
+            <VercelDeploy>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-2 md:px-3 bg-gradient-glass border-glass-border hover:shadow-glow transition-all duration-300"
+              >
+                <Rocket className="w-4 h-4 mr-1" />
+                <span className="hidden md:inline">Deploy</span>
+              </Button>
+            </VercelDeploy>
+            
+            {/* Contact Button */}
+            <ContactDialog>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-2 md:px-3 bg-gradient-glass border-glass-border hover:shadow-glow transition-all duration-300"
+              >
+                <MessageCircle className="w-4 h-4 mr-1" />
+                <span className="hidden md:inline">Contact</span>
+              </Button>
+            </ContactDialog>
+            
             <ServiceSelector
               selectedService={selectedService}
               onServiceChange={setSelectedService}
@@ -149,7 +211,18 @@ const ChatInterface = () => {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-2 md:p-4 space-y-3 md:space-y-4">
         {messages.map((message) => (
-          <ChatMessage key={message.id} message={message} showCopyIcon />
+          <div key={message.id} className="relative group">
+            <ChatMessage message={message} />
+            {/* Copy Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => copyMessage(message.content)}
+              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 h-6 w-6 p-0 bg-gradient-glass border border-glass-border hover:shadow-glow"
+            >
+              <Copy className="w-3 h-3" />
+            </Button>
+          </div>
         ))}
         {isLoading && <TypingIndicator />}
         <div ref={messagesEndRef} />

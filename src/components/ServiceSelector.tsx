@@ -19,13 +19,13 @@ const serviceOptions = [
 
 export function ServiceSelector({ selectedService, onServiceChange, className }: ServiceSelectorProps) {
   return (
-    <div className={cn("flex flex-wrap gap-2 p-2 bg-background/50 rounded-lg", className)}>
+    <div className={cn("hidden md:flex flex-wrap gap-1 p-1 bg-gradient-glass rounded-lg border border-glass-border", className)}>
       {serviceOptions.map((service) => (
         <Button
           key={service.value}
           variant={selectedService === service.value ? 'default' : 'outline'}
           size="sm"
-          className="flex-1 min-w-[80px]"
+          className="flex-1 min-w-[60px] h-7 text-xs bg-gradient-glass border-glass-border hover:shadow-glow transition-all duration-300"
           onClick={() => onServiceChange(service.value as ServiceType)}
         >
           {service.label}
